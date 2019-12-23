@@ -24,7 +24,7 @@ class BarcodeBloc extends ChangeNotifier {
   void writeImageLog(no, barcode,order_num,cusid) async {
     http.Response res = await http.post(getUrl(), body: {
       'query':
-          'nt_order_item SET it_image1="${imgLog[no]['it_image1']}",it_image2="${imgLog[no]['it_image2']}",it_image3="${imgLog[no]['it_image3']}",it_image4="${imgLog[no]['it_image4']}",it_image5="${imgLog[no]['it_image5']}",it_image6="${imgLog[no]['it_image6']}",it_image7="${imgLog[no]['it_image7']}",it_image8="${imgLog[no]['it_image8']}",it_image9="${imgLog[no]['it_image9']}",it_image10="${imgLog[no]['it_image10']}" WHERE it_no=$no and it_local_invoice="$barcode" ',
+          'nt_order_item SET it_state=1003, it_image1="${imgLog[no]['it_image1']}",it_image2="${imgLog[no]['it_image2']}",it_image3="${imgLog[no]['it_image3']}",it_image4="${imgLog[no]['it_image4']}",it_image5="${imgLog[no]['it_image5']}",it_image6="${imgLog[no]['it_image6']}",it_image7="${imgLog[no]['it_image7']}",it_image8="${imgLog[no]['it_image8']}",it_image9="${imgLog[no]['it_image9']}",it_image10="${imgLog[no]['it_image10']}" WHERE it_no=$no and it_local_invoice="$barcode" ',
       'order_number':order_num,
       'customer_id':cusid,
 
