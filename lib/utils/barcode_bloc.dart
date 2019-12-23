@@ -21,11 +21,14 @@ class BarcodeBloc extends ChangeNotifier {
 
   List<String> getImageList() => _bas64Images;
 
-  void writeImageLog(no, barcode) async {
+  void writeImageLog(no, barcode,order_num,cusid) async {
     http.Response res = await http.post(getUrl(), body: {
       'query':
-          'nt_order_item SET it_state=1003,it_image1="${imgLog[no]['it_image1']}",it_image2="${imgLog[no]['it_image2']}",it_image3="${imgLog[no]['it_image3']}",it_image4="${imgLog[no]['it_image4']}",it_image5="${imgLog[no]['it_image5']}",it_image6="${imgLog[no]['it_image6']}",it_image7="${imgLog[no]['it_image7']}",it_image8="${imgLog[no]['it_image8']}",it_image9="${imgLog[no]['it_image9']}",it_image10="${imgLog[no]['it_image10']}" WHERE it_no=$no and it_local_invoice="$barcode" ',
-      'action': 'w'
+          'nt_order_item SET it_image1="${imgLog[no]['it_image1']}",it_image2="${imgLog[no]['it_image2']}",it_image3="${imgLog[no]['it_image3']}",it_image4="${imgLog[no]['it_image4']}",it_image5="${imgLog[no]['it_image5']}",it_image6="${imgLog[no]['it_image6']}",it_image7="${imgLog[no]['it_image7']}",it_image8="${imgLog[no]['it_image8']}",it_image9="${imgLog[no]['it_image9']}",it_image10="${imgLog[no]['it_image10']}" WHERE it_no=$no and it_local_invoice="$barcode" ',
+      'order_number':order_num,
+      'customer_id':cusid,
+
+      'action': 'in'
     });
     notifyListeners();
     print(res.body.toString());
@@ -55,7 +58,8 @@ class BarcodeBloc extends ChangeNotifier {
               imgLog[id_no]['it_image${i + 1}'] == "None" ||
               imgLog[id_no]['it_image${i + 1}'] == null ||
               imgLog[id_no]['it_image${i + 1}'] == "null") {
-            imgLog[id_no]['it_image${i + 1}'] = "$cusname/$image_name";
+//              imgLog[id_no]['it_image${i + 1}'] = "$cusname/$image_name";
+              imgLog[id_no]['it_image${i + 1}'] = image_name;
             break;
           }
         }
@@ -64,13 +68,14 @@ class BarcodeBloc extends ChangeNotifier {
     }
   }
 
-  void showDialog(context, id_no, cusname, barcode) {
+  void showDialog(context, id_no, cusname, barcode,order_numbet) {
     slideDialog.showSlideDialog(
         context: context,
         child: InDetail(
           id_no: id_no,
           cus_name: cusname,
           barcode: barcode,
+          order_number: order_numbet,
         ));
   }
 
@@ -156,6 +161,7 @@ class BarcodeBloc extends ChangeNotifier {
         'item_count': a['it_count'],
         'barcode': a['it_local_invoice'],
         'state': a['it_state'],
+        'order_number':a['it_or_code']
       };
       dummy.add(res);
 

@@ -84,15 +84,16 @@ class _MainPageState extends State<InBarcodePage> {
                       itemBuilder: (context, index) {
                         return InkWell(
                           onTap: () {
-                            print("넘긴 번호${snapshot.data[index]['no']},넘긴 바코드${snapshot.data[index]['customer'].substring(0,2)}");
+                            print(
+                                "넘긴 번호${snapshot.data[index]['no']},넘긴 바코드${snapshot.data[index]['barcode']}, 넘긴아이디 ${snapshot.data[index]['customer']},넘긴 오더넘버${snapshot.data[index]['order_number']} ");
                             bloc.clearBase64();
 
                             bloc.showDialog(
                                 context,
                                 snapshot.data[index]['no'].toString(),
-                                snapshot.data[index]['customer']
-                                    .substring(0, 2),
-                                snapshot.data[index]['barcode']);
+                                snapshot.data[index]['customer'],
+                                snapshot.data[index]['barcode'],
+                                snapshot.data[index]['order_number']);
                           },
                           child: Card(
                             elevation: 5.0,
@@ -127,8 +128,7 @@ class _MainPageState extends State<InBarcodePage> {
                                       CachedNetworkImage(
                                         height: size.width * 0.2,
                                         width: size.width * 0.2,
-                                        imageUrl:
-                                            snapshot.data[index]['url'],
+                                        imageUrl: snapshot.data[index]['url'],
                                         placeholder: (context, url) =>
                                             CircularProgressIndicator(),
                                         errorWidget: (context, url, error) =>
@@ -209,10 +209,10 @@ class _MainPageState extends State<InBarcodePage> {
             padding: const EdgeInsets.all(12.0),
             child: InkWell(
               onTap: () {
-                qrscan.scan().then((barcode) {
-                  bloc.setEnterBarcode(barcode);
-                });
-//              bloc.setEnterBarcode('434654');
+//                qrscan.scan().then((barcode) {
+//                  bloc.setEnterBarcode(barcode);
+//                });
+              bloc.setEnterBarcode('test111');
               },
               child: Container(
                 alignment: Alignment.center,

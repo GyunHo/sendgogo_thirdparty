@@ -10,9 +10,10 @@ class InDetail extends StatefulWidget {
   final String cus_name;
   final String id_no;
   final String barcode;
+  final String order_number;
 
 
-  const InDetail({Key key, this.cus_name, this.id_no, this.barcode}) : super(key: key);
+  const InDetail({Key key, this.cus_name, this.id_no, this.barcode,this.order_number}) : super(key: key);
   @override
   _InDetailState createState() => _InDetailState();
 }
@@ -90,8 +91,8 @@ class _InDetailState extends State<InDetail> {
                 color: Colors.blue.withOpacity(0.7),
                 child: FlatButton(
                   onPressed: () {
-                    bloc.sendImage(widget.id_no,widget.cus_name);
-                    bloc.writeImageLog(widget.id_no, widget.barcode);
+                    bloc.sendImage(widget.id_no,widget.cus_name.substring(0,2));
+                    bloc.writeImageLog(widget.id_no, widget.barcode,widget.order_number,widget.cus_name);
 
                     Navigator.pop(context);
                   },
