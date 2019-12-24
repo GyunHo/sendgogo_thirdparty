@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kf_drawer/kf_drawer.dart';
 import 'package:provider/provider.dart';
 import 'package:qrscan/qrscan.dart' as qrscan;
-
 import 'package:sendgogo_thirdparty/utils/barcode_bloc.dart';
-import 'package:sendgogo_thirdparty/utils/classes.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class InBarcodePage extends KFDrawerContent {
@@ -209,10 +207,10 @@ class _MainPageState extends State<InBarcodePage> {
             padding: const EdgeInsets.all(12.0),
             child: InkWell(
               onTap: () {
-//                qrscan.scan().then((barcode) {
-//                  bloc.setEnterBarcode(barcode);
-//                });
-              bloc.setEnterBarcode('355435');
+                qrscan.scan().then((barcode) {
+                  bloc.setEnterBarcode(barcode);
+                });
+//              bloc.setEnterBarcode('355435');
               },
               child: Container(
                 alignment: Alignment.center,
