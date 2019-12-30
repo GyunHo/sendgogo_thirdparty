@@ -80,7 +80,7 @@ packages:
       name: http
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.12.0+2"
+    version: "0.12.0+3"
   http_parser:
     dependency: transitive
     description:
@@ -129,7 +129,7 @@ packages:
       name: mysql1
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.17.0+1"
+    version: "0.17.1"
   path:
     dependency: transitive
     description:
