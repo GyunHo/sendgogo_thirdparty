@@ -144,7 +144,7 @@ class BarcodeBloc extends ChangeNotifier {
   Future<List<Map>> inBarcodeStatus() async {
     imgLog.clear();
     final http.Response response = await http.post(_url, body: {
-      'query': 'nt_order_item WHERE it_local_invoice="$_enterBarcode"',
+      'query': 'nt_order_item WHERE it_state!=1003 AND it_local_invoice="$_enterBarcode"',
       'action': 'r'
     });
     List jsons = jsonDecode(response.body);

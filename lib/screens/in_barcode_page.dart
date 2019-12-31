@@ -210,7 +210,7 @@ class _MainPageState extends State<InBarcodePage> {
                 qrscan.scan().then((barcode) {
                   bloc.setEnterBarcode(barcode);
                 });
-//              bloc.setEnterBarcode('355435');
+//              bloc.setEnterBarcode('test111');
               },
               child: Container(
                 alignment: Alignment.center,
