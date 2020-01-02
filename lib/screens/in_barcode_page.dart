@@ -56,7 +56,7 @@ class _MainPageState extends State<InBarcodePage> {
                 return Expanded(
                   child: Container(
                     alignment: Alignment.center,
-                    child: Text("입고 테이블에 바코드가 없습니다."),
+                    child: Text("입고 테이블에 바코드 정보가 없습니다."),
                   ),
                 );
               }
@@ -72,7 +72,7 @@ class _MainPageState extends State<InBarcodePage> {
                 return Expanded(
                   child: Container(
                     alignment: Alignment.center,
-                    child: Text("입고 테이블에 바코드가 없습니다."),
+                    child: Text("입고 테이블에 바코드 정보가 없습니다."),
                   ),
                 );
               } else
@@ -210,7 +210,7 @@ class _MainPageState extends State<InBarcodePage> {
                 qrscan.scan().then((barcode) {
                   bloc.setEnterBarcode(barcode);
                 });
-//              bloc.setEnterBarcode('test111');
+//              bloc.setEnterBarcode('75314462808969');
               },
               child: Container(
                 alignment: Alignment.center,

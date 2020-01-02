@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
       create: (_) => BarcodeBloc(),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        initialRoute: "main",
+        initialRoute: "auth",
         routes: {
           "auth": (context) => AuthPage(),
           "main": (context) => MainWidget()
@@ -85,6 +85,17 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
 //        menuPadding: EdgeInsets.all(0.0),
 //        scrollable: true,
         controller: _drawerController,
+        header: Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 16.0),
+            child: Text(
+              '${bloc.getUser()}님',
+              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ),
+
 //        header: Align(
 //          alignment: Alignment.centerLeft,
 //          child: Container(
@@ -107,7 +118,7 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
           ),
           onPressed: () {
             bloc.clearInfo();
-//            Navigator.popAndPushNamed(context, 'auth');
+            Navigator.popAndPushNamed(context, 'auth');
 
 //            Navigator.of(context).push(CupertinoPageRoute(
 //              fullscreenDialog: true,

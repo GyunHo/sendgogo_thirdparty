@@ -75,7 +75,7 @@ class _AuthPageState extends State<AuthPage> {
                                           .check(context, _idController.text,
                                               _passwordController.text)
                                           .then((res) {
-                                        if (res != "login success") {
+                                        if (res == "login fail") {
                                           _globalKey.currentState.showSnackBar(
                                             SnackBar(
                                               duration:
@@ -85,6 +85,32 @@ class _AuthPageState extends State<AuthPage> {
                                             ),
                                           );
                                         }
+                                        if (res == "connection fail") {
+                                          _globalKey.currentState.showSnackBar(
+                                            SnackBar(
+                                              duration:
+                                                  Duration(milliseconds: 1000),
+                                              content:
+                                                  Text("인터넷 연결 상태를 확인해 주세요"),
+                                            ),
+                                          );
+                                        }
+                                        if (res == "success") {
+                                          print(bloc.getUrl());
+                                          bloc.setUser(_idController.text);
+                                          Navigator.popAndPushNamed(
+                                              context, 'main');
+                                        }
+                                      }).catchError((e){
+                                        _globalKey.currentState.showSnackBar(
+                                          SnackBar(
+                                            duration:
+                                            Duration(milliseconds: 1000),
+                                            content:
+                                            Text("어플오류"),
+                                          ),
+                                        );
+
                                       });
                                     },
                                     child: Text(

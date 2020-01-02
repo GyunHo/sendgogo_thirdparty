@@ -18,16 +18,22 @@ class BarcodeBloc extends ChangeNotifier {
   String _userId;
   String _pw;
   String _url = "http://mobilescan.sendgogo.com/test.php";
+  String _requestUrl =
+      'http://mobilescan.sendgogo.com/elpisbbs/app_register.php';
+
+  clearInfo() => _enterBarcode = null;
+
+  setUser(String id) => _userId = id;
+  getUser() => _userId;
 
   List<String> getImageList() => _bas64Images;
 
-  void writeImageLog(no, barcode,order_num,cusid) async {
+  void writeImageLog(no, barcode, order_num, cusid) async {
     http.Response res = await http.post(getUrl(), body: {
       'query':
           'nt_order_item SET it_state=1003, it_image1="${imgLog[no]['it_image1']}",it_image2="${imgLog[no]['it_image2']}",it_image3="${imgLog[no]['it_image3']}",it_image4="${imgLog[no]['it_image4']}",it_image5="${imgLog[no]['it_image5']}",it_image6="${imgLog[no]['it_image6']}",it_image7="${imgLog[no]['it_image7']}",it_image8="${imgLog[no]['it_image8']}",it_image9="${imgLog[no]['it_image9']}",it_image10="${imgLog[no]['it_image10']}" WHERE it_no=$no and it_local_invoice="$barcode" ',
-      'order_number':order_num,
-      'customer_id':cusid,
-
+      'order_number': order_num,
+      'customer_id': cusid,
       'action': 'in'
     });
     notifyListeners();
@@ -46,7 +52,7 @@ class BarcodeBloc extends ChangeNotifier {
           "image": base64,
           "image_name": image_name,
           "folder_name": cusname,
-          'action':'c'
+          'action': 'c'
         }).then((result) {
           print(result.statusCode);
           print(result.body);
@@ -59,7 +65,7 @@ class BarcodeBloc extends ChangeNotifier {
               imgLog[id_no]['it_image${i + 1}'] == null ||
               imgLog[id_no]['it_image${i + 1}'] == "null") {
 //              imgLog[id_no]['it_image${i + 1}'] = "$cusname/$image_name";
-              imgLog[id_no]['it_image${i + 1}'] = image_name;
+            imgLog[id_no]['it_image${i + 1}'] = image_name;
             break;
           }
         }
@@ -68,7 +74,7 @@ class BarcodeBloc extends ChangeNotifier {
     }
   }
 
-  void showDialog(context, id_no, cusname, barcode,order_numbet) {
+  void showDialog(context, id_no, cusname, barcode, order_numbet) {
     slideDialog.showSlideDialog(
         context: context,
         child: InDetail(
@@ -94,15 +100,6 @@ class BarcodeBloc extends ChangeNotifier {
     notifyListeners();
   }
 
-  clearInfo() {
-    _enterBarcode = null;
-  }
-
-  setUser(String id, String pw) {
-    _userId = id;
-    _pw = pw;
-  }
-
   setOutBarcode(String barcode) {
     _outBarcode = barcode;
     notifyListeners();
@@ -114,29 +111,19 @@ class BarcodeBloc extends ChangeNotifier {
   }
 
   Future<String> check(context, id, pw) async {
-    String res;
-
-    var settings = new ConnectionSettings(
-        host: '119.205.233.85',
-        port: 3306,
-        user: id,
-        password: pw,
-        db: 'sendgogo_solo');
-
-    try {
-      await MySqlConnection.connect(settings).then((_) {
-        setUser(id, pw);
-
-        Navigator.popAndPushNamed(context, 'main');
-
-        notifyListeners();
-        _.close();
-        res = "login success";
-        print(res);
-      });
-    } catch (e) {
-      res = "login error";
-      print(res);
+    String res = '';
+    http.Response response =
+        await http.post(_requestUrl, body: {'id': id, 'key': pw});
+    if (response.statusCode != 200) {
+      res = 'connection fail';
+    }
+    if (response.statusCode == 200 && response.body == 'fail') {
+      res = 'login fail';
+    }
+    if (response.statusCode == 200 && response.body != 'fail') {
+      String url = response.body;
+      _url = 'http://www.$url/test.php';
+      res = 'success';
     }
     return res;
   }
@@ -144,7 +131,8 @@ class BarcodeBloc extends ChangeNotifier {
   Future<List<Map>> inBarcodeStatus() async {
     imgLog.clear();
     final http.Response response = await http.post(_url, body: {
-      'query': 'nt_order_item WHERE it_state!=1003 AND it_local_invoice="$_enterBarcode"',
+      'query':
+          'nt_order_item WHERE it_state!=1003 AND it_local_invoice="$_enterBarcode"',
       'action': 'r'
     });
     List jsons = jsonDecode(response.body);
@@ -161,7 +149,7 @@ class BarcodeBloc extends ChangeNotifier {
         'item_count': a['it_count'],
         'barcode': a['it_local_invoice'],
         'state': a['it_state'],
-        'order_number':a['it_or_code']
+        'order_number': a['it_or_code']
       };
       dummy.add(res);
 
