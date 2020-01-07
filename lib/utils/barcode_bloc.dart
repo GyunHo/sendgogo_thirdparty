@@ -28,6 +28,9 @@ class BarcodeBloc extends ChangeNotifier {
 
   List<String> getImageList() => _bas64Images;
 
+
+
+
   void writeImageLog(no, barcode, order_num, cusid) async {
     http.Response res = await http.post(getUrl(), body: {
       'query':
@@ -136,7 +139,7 @@ class BarcodeBloc extends ChangeNotifier {
       'action': 'r'
     });
     List jsons = jsonDecode(response.body);
-    List<Map> dummy = [];
+    List<Map> dummy=[];
 
     for (var a in jsons) {
       Map<String, dynamic> res = {
