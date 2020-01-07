@@ -24,7 +24,12 @@ class _MainPageState extends State<InBarcodePage> {
 
     return Scaffold(
       appBar: AppBar(
-
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.library_add),
+            onPressed: () {},
+          )
+        ],
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: Icon(
