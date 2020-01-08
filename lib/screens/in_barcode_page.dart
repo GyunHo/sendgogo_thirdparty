@@ -27,7 +27,9 @@ class _MainPageState extends State<InBarcodePage> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.library_add),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, 'nodata');
+            },
           )
         ],
         backgroundColor: Colors.black,
@@ -41,41 +43,30 @@ class _MainPageState extends State<InBarcodePage> {
         title: Text('입고'),
         centerTitle: true,
       ),
-      body: SafeArea(
+      body: Container(
+        padding: const EdgeInsets.all(8.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            FutureBuilder(
-              initialData: _initData,
-              future: bloc.inBarcodeStatus(),
-              builder: (context, AsyncSnapshot<List<Map>> snapshot) {
-                if (snapshot.data == null) {
-                  return Expanded(
-                    child: Container(
-                      alignment: Alignment.center,
-                      child: Text("입고 테이블에 바코드 정보가 없습니다."),
-                    ),
-                  );
-                }
-
-                if (snapshot.connectionState == ConnectionState.active ||
-                    snapshot.connectionState == ConnectionState.waiting) {
-                  return Container(
-                      width: size.width * 0.1,
-                      height: size.width * 0.1,
-                      child: CircularProgressIndicator());
-                }
-                if (snapshot.data.length == 0) {
-                  return Expanded(
-                    child: Container(
-                      alignment: Alignment.center,
-                      child: Text("입고 테이블에 바코드 정보가 없습니다."),
-                    ),
-                  );
-                } else
-                  return Expanded(
-                    child: ListView.builder(
-                        itemCount: snapshot.data.length ?? 0,
+            Expanded(
+              child: FutureBuilder(
+                initialData: _initData,
+                future: bloc.inBarcodeStatus(),
+                builder: (context, AsyncSnapshot<List<Map>> snapshot) {
+                  if (snapshot.data == null) {
+                    return Container(
+                        alignment: Alignment.center, child: Text("바코드가 없습니다."));
+                  }
+                  if (snapshot.connectionState == ConnectionState.active ||
+                      snapshot.connectionState == ConnectionState.waiting) {
+                    return Container(
+                        alignment: Alignment.center,
+                        width: size.width * 0.1,
+                        height: size.width * 0.1,
+                        child: CircularProgressIndicator());
+                  } else
+                    return ListView.builder(
+                        itemCount: snapshot?.data?.length ?? 0,
                         itemBuilder: (context, index) {
                           return InkWell(
                             onTap: () {
@@ -83,7 +74,7 @@ class _MainPageState extends State<InBarcodePage> {
                                   "넘긴 번호${snapshot.data[index]['no']},넘긴 바코드${snapshot.data[index]['barcode']}, 넘긴아이디 ${snapshot.data[index]['customer']},넘긴 오더넘버${snapshot.data[index]['order_number']} ");
                               bloc.clearBase64();
 
-                              bloc.showDialog(
+                              bloc.showSendDialog(
                                   context,
                                   snapshot.data[index]['no'].toString(),
                                   snapshot.data[index]['customer'],
@@ -197,37 +188,29 @@ class _MainPageState extends State<InBarcodePage> {
                               ),
                             ),
                           );
-                        }),
-                  );
-              },
-            ),
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: InkWell(
-                onTap: () async {
-                  qrscan.scan().then((barcode) async {
-                    bloc.setEnterBarcode(barcode);
-                  });
-
-//              bloc.setEnterBarcode('1111111111111');
+                        });
                 },
-                child: Container(
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.grey,
-                            offset: Offset(5.0, 5.0),
-                            blurRadius: 5.0)
-                      ],
-                      color: Colors.greenAccent,
-                      borderRadius: BorderRadius.circular(16.0)),
-                  child: Text(
+              ),
+            ),
+            InkWell(
+              onTap: () async {
+//                  qrscan.scan().then((barcode) async {
+//                    bloc.setEnterBarcode(barcode);
+//                  });
+
+                bloc.setEnterBarcode('4005808891450');
+              },
+              child: SizedBox(
+                width: size.width,
+                height: size.height * 0.1,
+                child: Card(
+                  elevation: 5.0,
+                  color: Colors.white,
+                  child: Center(
+                      child: Text(
                     "바코드 스캔",
-                    style: TextStyle(fontSize: 20.0),
-                  ),
-                  height: size.height * 0.08,
-                  width: double.infinity,
+                    style: TextStyle(color: Colors.black),
+                  )),
                 ),
               ),
             ),

@@ -97,6 +97,7 @@ class _AuthPageState extends State<AuthPage> {
                                         }
                                         if (res == "success") {
                                           print(bloc.getUrl());
+                                          print(bloc.url2);
                                           bloc.setUser(_idController.text);
                                           Navigator.popAndPushNamed(
                                               context, 'main');

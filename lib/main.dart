@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kf_drawer/kf_drawer.dart';
 import 'package:provider/provider.dart';
 import 'package:sendgogo_thirdparty/screens/candidate_page.dart';
+import 'package:sendgogo_thirdparty/screens/input_nodata_page.dart';
 
 import 'package:sendgogo_thirdparty/utils/barcode_bloc.dart';
 import 'screens/auth_page.dart';
@@ -23,7 +24,8 @@ class MyApp extends StatelessWidget {
         initialRoute: "auth",
         routes: {
           "auth": (context) => AuthPage(),
-          "main": (context) => MainWidget()
+          "main": (context) => MainWidget(),
+          "nodata": (context) => InputNoDate()
         },
         theme: ThemeData(
           primarySwatch: Colors.blue,

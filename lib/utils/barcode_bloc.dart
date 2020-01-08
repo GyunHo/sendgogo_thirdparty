@@ -11,25 +11,26 @@ import 'package:http/http.dart' as http;
 
 class BarcodeBloc extends ChangeNotifier {
   Map<String, Map<String, String>> imgLog = {};
-
+  List _list;
   List<String> _bas64Images = [];
   String _enterBarcode;
   String _outBarcode;
   String _userId;
   String _pw;
-  String _url = "http://mobilescan.sendgogo.com/test.php";
+  String _url = '';
+  String url2 = '';
   String _requestUrl =
       'http://mobilescan.sendgogo.com/elpisbbs/app_register.php';
+
+  getList() => _list;
 
   clearInfo() => _enterBarcode = null;
 
   setUser(String id) => _userId = id;
+
   getUser() => _userId;
 
   List<String> getImageList() => _bas64Images;
-
-
-
 
   void writeImageLog(no, barcode, order_num, cusid) async {
     http.Response res = await http.post(getUrl(), body: {
@@ -77,7 +78,7 @@ class BarcodeBloc extends ChangeNotifier {
     }
   }
 
-  void showDialog(context, id_no, cusname, barcode, order_numbet) {
+  void showSendDialog(context, id_no, cusname, barcode, order_numbet) {
     slideDialog.showSlideDialog(
         context: context,
         child: InDetail(
@@ -108,7 +109,7 @@ class BarcodeBloc extends ChangeNotifier {
     notifyListeners();
   }
 
-  setEnterBarcode(String barcode) {
+  Future<void> setEnterBarcode(String barcode) async {
     _enterBarcode = barcode;
     notifyListeners();
   }
@@ -125,7 +126,9 @@ class BarcodeBloc extends ChangeNotifier {
     }
     if (response.statusCode == 200 && response.body != 'fail') {
       String url = response.body;
+      url2 = 'http://www.$url';
       _url = 'http://www.$url/test.php';
+
       res = 'success';
     }
     return res;
@@ -139,7 +142,7 @@ class BarcodeBloc extends ChangeNotifier {
       'action': 'r'
     });
     List jsons = jsonDecode(response.body);
-    List<Map> dummy=[];
+    List<Map> dummy = List();
 
     for (var a in jsons) {
       Map<String, dynamic> res = {
@@ -170,6 +173,7 @@ class BarcodeBloc extends ChangeNotifier {
       };
       print(imgLog);
     }
+
     return dummy;
   }
 
