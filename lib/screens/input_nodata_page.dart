@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:sendgogo_thirdparty/utils/barcode_bloc.dart';
 import 'package:qrscan/qrscan.dart' as qrscan;
+import 'package:sendgogo_thirdparty/utils/barcode_bloc.dart';
+import 'package:http/http.dart' as http;
 
 class InputNoDate extends StatefulWidget {
   final Map<String, dynamic> pob;
@@ -22,24 +22,14 @@ class _InputNoDateState extends State<InputNoDate> {
   TextEditingController _textEditingController = TextEditingController();
   TextEditingController _barcodeEditingController = TextEditingController();
   List queryList = [];
-  Map<String, dynamic> datas = {
+  Map<String, dynamic> images = {
     "on_image1": "",
     "on_image2": "",
     "on_image3": "",
     "on_image4": "",
     "on_image5": "",
   };
-
-  listing(String query) {
-    queryList.clear();
-    List queryResult = pob.keys.toList().where((val) {
-      return val.contains(query);
-    }).toList();
-    setState(() {
-      queryList.addAll(queryResult);
-    });
-  }
-
+  Map<String, dynamic> datas = {};
   Map<String, dynamic> pob = {};
 
   @override
@@ -50,25 +40,40 @@ class _InputNoDateState extends State<InputNoDate> {
   }
 
   @override
+  void dispose() {
+    _textEditingController?.dispose();
+    _barcodeEditingController?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final bloc = Provider.of<BarcodeBloc>(context);
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
-        actions: <Widget>[RaisedButton(onPressed: (){
-          if(_globalKey.currentState.validate()){
-            _globalKey.currentState.save();
-            print(datas);
-          }
-        },)],
+        actions: <Widget>[
+          RaisedButton(
+            onPressed: () async {
+              if (_globalKey.currentState.validate()) {
+                print(DateTime.now());
+                datas['on_in_date'] = DateTime.now();
+                _globalKey.currentState.save();
+                await uploadImage(images, bloc.getUrl()).then((_) {
+                  print("끝");
+                });
+              }
+            },
+          )
+        ],
         title: Text("noDate 등록"),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(10.0),
-          child: Form(
+      body: Padding(
+        padding: EdgeInsets.all(10.0),
+        child: Form(
+          key: _globalKey,
+          child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -79,7 +84,7 @@ class _InputNoDateState extends State<InputNoDate> {
                   children: <Widget>[
                     Expanded(
                       child: TextFormField(
-                        onSaved: (val){
+                        onSaved: (val) {
                           datas['on_local_invoice'] = val;
                         },
                         controller: _barcodeEditingController,
@@ -111,18 +116,17 @@ class _InputNoDateState extends State<InputNoDate> {
                   height: MediaQuery.of(context).size.height * 0.03,
                 ),
                 TextFormField(
-                  onSaved: (val){
-                    datas['on_mb_pob_no'] = val;
-                  },
-                    validator: (val){
-                    if(val.isEmpty){
-                      return "사서함은 빈칸일수 없습니다.";
-                    }else{
-                    return  null;
-                    }
+                    onSaved: (val) {
+                      datas['on_mb_pob_no'] = val;
+                    },
+                    validator: (val) {
+                      if (val.isEmpty) {
+                        return "사서함은 빈칸일수 없습니다.";
+                      } else {
+                        return null;
+                      }
                     },
                     decoration: InputDecoration(
-
                         labelText: "개인사서함",
                         hintText: "개인사서함 입력",
                         border: OutlineInputBorder(
@@ -175,15 +179,16 @@ class _InputNoDateState extends State<InputNoDate> {
                   child: ListView(
                       scrollDirection: Axis.horizontal,
                       shrinkWrap: true,
-                      children: datas.keys.toList().map((val) {
-                        if (datas[val] != "") {
+                      children: images.keys.toList().map((val) {
+                        if (images[val] != "") {
                           return Card(
-                            child: Image.memory(
-                              base64Decode(datas[val]),
-                              fit: BoxFit.cover,
-                              width: MediaQuery.of(context).size.width * 0.3,
+                              child: Image(
+                            image: MemoryImage(
+                              base64Decode(images[val]),
                             ),
-                          );
+                            width: MediaQuery.of(context).size.width * 0.3,
+                            fit: BoxFit.cover,
+                          ));
                         } else {
                           return Card(
                             child: Container(
@@ -196,7 +201,7 @@ class _InputNoDateState extends State<InputNoDate> {
                                       String base64Image =
                                           base64Encode(res.readAsBytesSync());
                                       setState(() {
-                                        datas[val] = base64Image;
+                                        images[val] = base64Image;
                                       });
                                     }
                                   });
@@ -213,6 +218,27 @@ class _InputNoDateState extends State<InputNoDate> {
         ),
       ),
     );
+  }
+
+  Future<void> uploadImage(Map<String, dynamic> images, String url) async {
+    for (var i in images.keys.toList()) {
+      if (images[i] != '') {
+        var image_name =
+            "from_android_${DateTime.now().millisecondsSinceEpoch.toString()}.jpg";
+        await http.post(url, body: {
+          "image": images[i],
+          "image_name": image_name,
+          "folder_name": 'nodata',
+          'action': 'c'
+        }).then((response) {
+          print(response.body);
+          if (response.body == '1') {
+            datas[i] = image_name;
+            print(datas);
+          }
+        });
+      }
+    }
   }
 
   Future<File> cameraOrAlbum() async {
@@ -236,7 +262,9 @@ class _InputNoDateState extends State<InputNoDate> {
                           icon: Icon(Icons.camera_enhance),
                           onPressed: () async {
                             File reImage = await ImagePicker.pickImage(
-                                source: ImageSource.camera);
+                                source: ImageSource.camera,
+                                maxHeight: 1920,
+                                maxWidth: 1080);
                             Navigator.pop(context, reImage);
                           },
                         ),
@@ -251,7 +279,9 @@ class _InputNoDateState extends State<InputNoDate> {
                           icon: Icon(Icons.photo_album),
                           onPressed: () async {
                             File reImage = await ImagePicker.pickImage(
-                                source: ImageSource.gallery);
+                                source: ImageSource.gallery,
+                                maxHeight: 1920,
+                                maxWidth: 1080);
                             Navigator.pop(context, reImage);
                           },
                         ),
@@ -267,5 +297,15 @@ class _InputNoDateState extends State<InputNoDate> {
       image = res;
     });
     return image;
+  }
+
+  listing(String query) {
+    queryList.clear();
+    List queryResult = pob.keys.toList().where((val) {
+      return val.contains(query);
+    }).toList();
+    setState(() {
+      queryList.addAll(queryResult);
+    });
   }
 }
