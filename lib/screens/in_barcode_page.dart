@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:kf_drawer/kf_drawer.dart';
 import 'package:provider/provider.dart';
 import 'package:qrscan/qrscan.dart' as qrscan;
+import 'package:sendgogo_thirdparty/screens/input_nodata_page.dart';
 import 'package:sendgogo_thirdparty/utils/barcode_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:http/http.dart' as http;
 
 class InBarcodePage extends KFDrawerContent {
   InBarcodePage({
@@ -22,13 +26,49 @@ class _MainPageState extends State<InBarcodePage> {
     final bloc = Provider.of<BarcodeBloc>(context);
     final Size size = MediaQuery.of(context).size;
 
+    String url = bloc.url2 + '/elpisbbs/ajax.nt_typeahead.php';
+
+    Future<Map<String, dynamic>> getPob(String url) async {
+      Map<String, dynamic> list = Map();
+      Map body = {'mode': 'mb_pob_no', 'name': ''};
+      http.Response response = await http.post(url, body: body);
+      List<dynamic> json = jsonDecode(response.body);
+      for (var i in json) {
+        list[i['pob_no']] = i['mb_text'];
+      }
+
+      return list;
+    }
+
     return Scaffold(
       appBar: AppBar(
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.library_add),
-            onPressed: () {
-              Navigator.pushNamed(context, 'nodata');
+            onPressed: () async {
+              await getPob(url).then((res) {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => InputNoDate(
+                              pob: res,
+                            ))).then((popRes) {
+                  try {
+                    if (popRes) {
+                      Scaffold.of(context).showSnackBar(SnackBar(
+                        content: Text("데이터를 등록 했습니다."),
+                      ));
+                    }
+                    if (!popRes) {
+                      Scaffold.of(context).showSnackBar(SnackBar(
+                        content: Text("데이터 등록 실패 했습니다. 다시 시도해 주세요."),
+                      ));
+                    }
+                  } catch (e) {
+                    print('아무 결과 없이 노데이터 빠짐');
+                  }
+                });
+              });
             },
           )
         ],
