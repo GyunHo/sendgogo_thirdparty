@@ -55,13 +55,25 @@ class _InputNoDateState extends State<InputNoDate> {
         actions: <Widget>[
           RaisedButton(
             onPressed: () async {
+              String url = bloc.getUrl();
+//              String url = 'http://mobilescan.sendgogo.com/test.php';
               if (_globalKey.currentState.validate()) {
-                print(DateTime.now());
-                datas['on_in_date'] = DateTime.now();
                 _globalKey.currentState.save();
-                await uploadImage(images, bloc.getUrl()).then((_) {
-                  print("끝");
-                });
+                try {
+                  await uploadImage(images, url).then((_) async {
+                    print(" 이미지 업로드 끝");
+                    await writeDB(datas, url).then((res) {
+                      if (res.body == "Success") {
+                        Navigator.pop(context, true);
+                      } else {
+                        Navigator.pop(context, false);
+                      }
+                    });
+                  });
+                } catch (e) {
+                  print("이미지 업로드 실패 또는 db에서 null 발생해서 빠져나갑니다");
+                  Navigator.pop(context, false);
+                }
               }
             },
           )
@@ -118,13 +130,6 @@ class _InputNoDateState extends State<InputNoDate> {
                 TextFormField(
                     onSaved: (val) {
                       datas['on_mb_pob_no'] = val;
-                    },
-                    validator: (val) {
-                      if (val.isEmpty) {
-                        return "사서함은 빈칸일수 없습니다.";
-                      } else {
-                        return null;
-                      }
                     },
                     decoration: InputDecoration(
                         labelText: "개인사서함",
@@ -220,6 +225,23 @@ class _InputNoDateState extends State<InputNoDate> {
     );
   }
 
+  Future<http.Response> writeDB(Map<String, dynamic> data, String url) async {
+    http.Response res;
+    DateTime date = DateTime.now();
+    String Query = 'on_in_date = "${date.toString()}"';
+    for (var i in data.keys.toList()) {
+      Query += ', $i = "${data[i]}"';
+    }
+    print("DB쓰기 실행");
+
+    await http
+        .post(url, body: {'query': Query, 'action': 'nodata'}).then((response) {
+      res = response;
+    });
+    print("nodata 쿼리 = $Query");
+    return res;
+  }
+
   Future<void> uploadImage(Map<String, dynamic> images, String url) async {
     for (var i in images.keys.toList()) {
       if (images[i] != '') {
@@ -234,11 +256,11 @@ class _InputNoDateState extends State<InputNoDate> {
           print(response.body);
           if (response.body == '1') {
             datas[i] = image_name;
-            print(datas);
           }
         });
       }
     }
+    print("이미지 쓰기 실행");
   }
 
   Future<File> cameraOrAlbum() async {

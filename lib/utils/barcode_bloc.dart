@@ -32,6 +32,8 @@ class BarcodeBloc extends ChangeNotifier {
 
   List<String> getImageList() => _bas64Images;
 
+
+
   void writeImageLog(no, barcode, order_num, cusid) async {
     http.Response res = await http.post(getUrl(), body: {
       'query':
@@ -136,7 +138,7 @@ class BarcodeBloc extends ChangeNotifier {
 
   Future<List<Map>> inBarcodeStatus() async {
     imgLog.clear();
-    final http.Response response = await http.post(_url, body: {
+    final http.Response response = await http.post(getUrl(), body: {
       'query':
           'nt_order_item WHERE it_state!=1003 AND it_local_invoice="$_enterBarcode"',
       'action': 'r'
@@ -187,7 +189,7 @@ class BarcodeBloc extends ChangeNotifier {
   }
 
   Future<List<Map>> outBarcodeStatus() async {
-    final http.Response response = await http.post(_url, body: {
+    final http.Response response = await http.post(getUrl(), body: {
       'query': 'nt_order_group WHERE gr_tc_invoice="$_outBarcode"',
       'action': 'r'
     });

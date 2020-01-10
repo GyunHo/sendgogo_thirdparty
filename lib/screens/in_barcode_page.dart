@@ -26,19 +26,7 @@ class _MainPageState extends State<InBarcodePage> {
     final bloc = Provider.of<BarcodeBloc>(context);
     final Size size = MediaQuery.of(context).size;
 
-    String url = bloc.url2 + '/elpisbbs/ajax.nt_typeahead.php';
-
-    Future<Map<String, dynamic>> getPob(String url) async {
-      Map<String, dynamic> list = Map();
-      Map body = {'mode': 'mb_pob_no', 'name': ''};
-      http.Response response = await http.post(url, body: body);
-      List<dynamic> json = jsonDecode(response.body);
-      for (var i in json) {
-        list[i['pob_no']] = i['mb_text'];
-      }
-
-      return list;
-    }
+    String pobUrl = bloc.url2 + '/elpisbbs/ajax.nt_typeahead.php';
 
     return Scaffold(
       appBar: AppBar(
@@ -46,7 +34,7 @@ class _MainPageState extends State<InBarcodePage> {
           IconButton(
             icon: Icon(Icons.library_add),
             onPressed: () async {
-              await getPob(url).then((res) {
+              await getPob(pobUrl).then((res) {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -234,11 +222,11 @@ class _MainPageState extends State<InBarcodePage> {
             ),
             InkWell(
               onTap: () async {
-//                  qrscan.scan().then((barcode) async {
-//                    bloc.setEnterBarcode(barcode);
-//                  });
+                qrscan.scan().then((barcode) async {
+                  bloc.setEnterBarcode(barcode);
+                });
 
-                bloc.setEnterBarcode('4005808891450');
+//                bloc.setEnterBarcode('4005808891450');
               },
               child: SizedBox(
                 width: size.width,
@@ -258,5 +246,16 @@ class _MainPageState extends State<InBarcodePage> {
         ),
       ),
     );
+  }
+
+  Future<Map<String, dynamic>> getPob(String url) async {
+    Map<String, dynamic> list = Map();
+    Map body = {'mode': 'mb_pob_no', 'name': ''};
+    http.Response response = await http.post(url, body: body);
+    List<dynamic> json = jsonDecode(response.body);
+    for (var i in json) {
+      list[i['pob_no']] = i['mb_text'];
+    }
+    return list;
   }
 }
