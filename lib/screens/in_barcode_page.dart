@@ -31,33 +31,38 @@ class _MainPageState extends State<InBarcodePage> {
     return Scaffold(
       appBar: AppBar(
         actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.library_add),
-            onPressed: () async {
-              await getPob(pobUrl).then((res) {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => InputNoDate(
-                              pob: res,
-                            ))).then((popRes) {
-                  try {
-                    if (popRes) {
-                      Scaffold.of(context).showSnackBar(SnackBar(
-                        content: Text("데이터를 등록 했습니다."),
-                      ));
-                    }
-                    if (!popRes) {
-                      Scaffold.of(context).showSnackBar(SnackBar(
-                        content: Text("데이터 등록 실패 했습니다. 다시 시도해 주세요."),
-                      ));
-                    }
-                  } catch (e) {
-                    print('아무 결과 없이 노데이터 빠짐');
-                  }
-                });
-              });
-            },
+          Row(
+            children: <Widget>[
+              Text('노데이터'),
+              IconButton(
+                icon: Icon(Icons.library_add),
+                onPressed: () async {
+                  await getPob(pobUrl).then((res) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => InputNoDate(
+                                  pob: res,
+                                ))).then((popRes) {
+                      try {
+                        if (popRes) {
+                          Scaffold.of(context).showSnackBar(SnackBar(
+                            content: Text("데이터를 등록 했습니다."),
+                          ));
+                        }
+                        if (!popRes) {
+                          Scaffold.of(context).showSnackBar(SnackBar(
+                            content: Text("데이터 등록 실패 했습니다. 다시 시도해 주세요."),
+                          ));
+                        }
+                      } catch (e) {
+                        print('아무 결과 없이 노데이터 빠짐');
+                      }
+                    });
+                  });
+                },
+              ),
+            ],
           )
         ],
         backgroundColor: Colors.black,

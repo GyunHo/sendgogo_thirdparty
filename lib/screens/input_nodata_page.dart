@@ -53,29 +53,37 @@ class _InputNoDateState extends State<InputNoDate> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         actions: <Widget>[
-          RaisedButton(
-            onPressed: () async {
-              String url = bloc.getUrl();
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: RaisedButton(
+              child: Text("저장하기"),
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+
+                  borderRadius: BorderRadius.circular(10.0)),
+              onPressed: () async {
+                String url = bloc.getUrl();
 //              String url = 'http://mobilescan.sendgogo.com/test.php';
-              if (_globalKey.currentState.validate()) {
-                _globalKey.currentState.save();
-                try {
-                  await uploadImage(images, url).then((_) async {
-                    print(" 이미지 업로드 끝");
-                    await writeDB(datas, url).then((res) {
-                      if (res.body == "Success") {
-                        Navigator.pop(context, true);
-                      } else {
-                        Navigator.pop(context, false);
-                      }
+                if (_globalKey.currentState.validate()) {
+                  _globalKey.currentState.save();
+                  try {
+                    await uploadImage(images, url).then((_) async {
+                      print(" 이미지 업로드 끝");
+                      await writeDB(datas, url).then((res) {
+                        if (res.body == "Success") {
+                          Navigator.pop(context, true);
+                        } else {
+                          Navigator.pop(context, false);
+                        }
+                      });
                     });
-                  });
-                } catch (e) {
-                  print("이미지 업로드 실패 또는 db에서 null 발생해서 빠져나갑니다");
-                  Navigator.pop(context, false);
+                  } catch (e) {
+                    print("이미지 업로드 실패 또는 db에서 null 발생해서 빠져나갑니다");
+                    Navigator.pop(context, false);
+                  }
                 }
-              }
-            },
+              },
+            ),
           )
         ],
         title: Text("noDate 등록"),
