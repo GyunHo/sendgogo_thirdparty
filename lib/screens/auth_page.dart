@@ -97,21 +97,18 @@ class _AuthPageState extends State<AuthPage> {
                                         }
                                         if (res == "success") {
                                           print(bloc.getUrl());
-                                          print(bloc.url2);
                                           bloc.setUser(_idController.text);
                                           Navigator.popAndPushNamed(
                                               context, 'main');
                                         }
-                                      }).catchError((e){
+                                      }).catchError((e) {
                                         _globalKey.currentState.showSnackBar(
                                           SnackBar(
                                             duration:
-                                            Duration(milliseconds: 1000),
-                                            content:
-                                            Text("어플오류"),
+                                                Duration(milliseconds: 1000),
+                                            content: Text("어플오류"),
                                           ),
                                         );
-
                                       });
                                     },
                                     child: Text(

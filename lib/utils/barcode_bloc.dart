@@ -18,7 +18,7 @@ class BarcodeBloc extends ChangeNotifier {
   String _userId;
   String _pw;
   String _url = '';
-  String url2 = '';
+
   String _requestUrl =
       'http://mobilescan.sendgogo.com/elpisbbs/app_register.php';
 
@@ -128,7 +128,7 @@ class BarcodeBloc extends ChangeNotifier {
     }
     if (response.statusCode == 200 && response.body != 'fail') {
       String url = response.body;
-      url2 = 'http://www.$url';
+
       _url = 'http://www.$url/test.php';
 
       res = 'success';

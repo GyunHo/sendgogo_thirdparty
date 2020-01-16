@@ -26,8 +26,6 @@ class _MainPageState extends State<InBarcodePage> {
     final bloc = Provider.of<BarcodeBloc>(context);
     final Size size = MediaQuery.of(context).size;
 
-    String pobUrl = bloc.url2 + '/elpisbbs/ajax.nt_typeahead.php';
-
     return Scaffold(
       appBar: AppBar(
         actions: <Widget>[
@@ -37,7 +35,7 @@ class _MainPageState extends State<InBarcodePage> {
               IconButton(
                 icon: Icon(Icons.library_add),
                 onPressed: () async {
-                  await getPob(pobUrl).then((res) {
+                  await getPob(bloc.getUrl()).then((res) {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -255,11 +253,16 @@ class _MainPageState extends State<InBarcodePage> {
 
   Future<Map<String, dynamic>> getPob(String url) async {
     Map<String, dynamic> list = Map();
-    Map body = {'mode': 'mb_pob_no', 'name': ''};
+    Map body = {'query': 'nt_member_view','action':'r'};
     http.Response response = await http.post(url, body: body);
     List<dynamic> json = jsonDecode(response.body);
     for (var i in json) {
-      list[i['pob_no']] = i['mb_text'];
+      String mb_id = i['mb_id'];
+      String mb_name = i['mb_name'];
+      String mb_pob_no = i['mb_pob_no'];
+      String pob_text = '$mb_pob_no $mb_id($mb_name)';
+
+      list[mb_pob_no] = pob_text;
     }
     return list;
   }
