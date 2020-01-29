@@ -10,8 +10,9 @@ import 'package:http/http.dart' as http;
 
 class InputNoDate extends StatefulWidget {
   final Map<String, dynamic> pob;
+  final Map<String, dynamic> deno;
 
-  const InputNoDate({Key key, this.pob}) : super(key: key);
+  const InputNoDate({Key key, this.pob, this.deno}) : super(key: key);
 
   @override
   _InputNoDateState createState() => _InputNoDateState();
@@ -31,9 +32,15 @@ class _InputNoDateState extends State<InputNoDate> {
   };
   Map<String, dynamic> datas = {};
   Map<String, dynamic> pob = {};
+  Map<String, dynamic> deNo = {};
+  String dropDownVal;
 
   @override
   void initState() {
+    deNo = widget.deno;
+    dropDownVal = deNo.keys.toList()[0].toString();
+    datas['on_de_no'] = deNo[dropDownVal];
+    print(datas);
     pob = widget.pob;
     print(pob);
     super.initState();
@@ -59,7 +66,6 @@ class _InputNoDateState extends State<InputNoDate> {
               child: Text("저장하기"),
               color: Colors.white,
               shape: RoundedRectangleBorder(
-
                   borderRadius: BorderRadius.circular(10.0)),
               onPressed: () async {
                 String url = bloc.getUrl();
@@ -69,7 +75,7 @@ class _InputNoDateState extends State<InputNoDate> {
                   try {
                     await uploadImage(images, url).then((_) async {
                       print(" 이미지 업로드 끝");
-                      await writeDB(datas, url).then((res) {
+                      await writeDB(datas, url, bloc.getUser()).then((res) {
                         if (res.body == "Success") {
                           Navigator.pop(context, true);
                         } else {
@@ -97,6 +103,21 @@ class _InputNoDateState extends State<InputNoDate> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                DropdownButton(
+                  value: dropDownVal ?? "배대지가 없습니다",
+                  items: deNo.keys.toList().map((key) {
+                    return DropdownMenuItem(
+                      child: Text(key),
+                      value: key,
+                    );
+                  }).toList(),
+                  onChanged: (val) {
+                    datas['on_de_no'] = deNo[val];
+                    setState(() {
+                      dropDownVal = val;
+                    });
+                  },
+                ),
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.03,
                 ),
@@ -233,17 +254,23 @@ class _InputNoDateState extends State<InputNoDate> {
     );
   }
 
-  Future<http.Response> writeDB(Map<String, dynamic> data, String url) async {
+  Future<http.Response> writeDB(
+      Map<String, dynamic> data, String url, String userId) async {
     http.Response res;
     DateTime date = DateTime.now();
-    String Query = 'on_in_date = "${date.toString()}"';
+    String Query =
+        'on_in_date = "${date.toString()}",on_wdate = "${date.toString()}"';
     for (var i in data.keys.toList()) {
       Query += ', $i = "${data[i]}"';
     }
+
     print("DB쓰기 실행");
 
-    await http
-        .post(url, body: {'query': Query, 'action': 'nodata'}).then((response) {
+    await http.post(url, body: {
+      'query': Query,
+      'action': 'nodata',
+      'user_id': userId
+    }).then((response) {
       res = response;
     });
     print("nodata 쿼리 = $Query");

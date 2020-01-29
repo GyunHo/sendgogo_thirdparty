@@ -35,29 +35,37 @@ class _MainPageState extends State<InBarcodePage> {
               IconButton(
                 icon: Icon(Icons.library_add),
                 onPressed: () async {
-                  await getPob(bloc.getUrl()).then((res) {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => InputNoDate(
-                                  pob: res,
-                                ))).then((popRes) {
-                      try {
-                        if (popRes) {
-                          Scaffold.of(context).showSnackBar(SnackBar(
-                            content: Text("데이터를 등록 했습니다."),
-                          ));
+                  try {
+                    Map<String, dynamic> deno = await getDeNo(bloc.getUrl());
+                    await getPob(bloc.getUrl()).then((res) {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => InputNoDate(
+                                    pob: res,
+                                    deno: deno,
+                                  ))).then((popRes) {
+                        try {
+                          if (popRes) {
+                            Scaffold.of(context).showSnackBar(SnackBar(
+                              content: Text("데이터를 등록 했습니다."),
+                            ));
+                          }
+                          if (!popRes) {
+                            Scaffold.of(context).showSnackBar(SnackBar(
+                              content: Text("데이터 등록 실패 했습니다. 다시 시도해 주세요."),
+                            ));
+                          }
+                        } catch (e) {
+                          print('아무 결과 없이 노데이터 빠짐');
                         }
-                        if (!popRes) {
-                          Scaffold.of(context).showSnackBar(SnackBar(
-                            content: Text("데이터 등록 실패 했습니다. 다시 시도해 주세요."),
-                          ));
-                        }
-                      } catch (e) {
-                        print('아무 결과 없이 노데이터 빠짐');
-                      }
+                      });
                     });
-                  });
+                  } catch (e) {
+                    Scaffold.of(context).showSnackBar(SnackBar(
+                      content: Text("페이지 url 오류 또는 알수 없는 오류"),
+                    ));
+                  }
                 },
               ),
             ],
@@ -229,7 +237,7 @@ class _MainPageState extends State<InBarcodePage> {
                   bloc.setEnterBarcode(barcode);
                 });
 
-//                bloc.setEnterBarcode('4005808891450');
+//                bloc.setEnterBarcode('8806011615408');
               },
               child: SizedBox(
                 width: size.width,
@@ -251,9 +259,22 @@ class _MainPageState extends State<InBarcodePage> {
     );
   }
 
+  getDeNo(String url) async {
+    Map<String, dynamic> list = Map();
+    Map body = {'query': 'nt_service_delivery_view', 'action': 'r'};
+    http.Response response = await http.post(url, body: body);
+    List<dynamic> json = jsonDecode(response.body);
+    for (var i in json) {
+      String key = '[${i['de_send_code']}] ${i['de_name']}';
+      String value = i['de_no'].toString();
+      list[key] = value;
+    }
+    return list;
+  }
+
   Future<Map<String, dynamic>> getPob(String url) async {
     Map<String, dynamic> list = Map();
-    Map body = {'query': 'nt_member_view','action':'r'};
+    Map body = {'query': 'nt_member_view', 'action': 'r'};
     http.Response response = await http.post(url, body: body);
     List<dynamic> json = jsonDecode(response.body);
     for (var i in json) {
